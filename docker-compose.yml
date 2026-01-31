@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   gist-sync:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/macedot/gist-sync:main
     container_name: gist-sync
     restart: unless-stopped
     environment:
