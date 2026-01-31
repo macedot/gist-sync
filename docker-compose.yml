@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  gist-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gist-sync
+    restart: unless-stopped
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - OPENGIST_URL=${OPENGIST_URL:-http://opengist:6157}
+      - OPENGIST_USERNAME=${OPENGIST_USERNAME}
+      - OPENGIST_TOKEN=${OPENGIST_TOKEN}
+      - SYNC_INTERVAL_MINUTES=${SYNC_INTERVAL_MINUTES:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - gist-workdir:/tmp/gist-sync
+    depends_on:
+      - opengist
+    networks:
+      - gist-network
+
+  opengist:
+    image: ghcr.io/thomiceli/opengist:1.9
+    container_name: opengist
+    restart: unless-stopped
+    ports:
+      - "6157:6157"
+    volumes:
+      - opengist-data:/opengist
+    environment:
+      - OG_EXTERNAL_URL=${OPENGIST_EXTERNAL_URL:-http://localhost:6157}
+    networks:
+      - gist-network
+
+volumes:
+  gist-workdir:
+  opengist-data:
+
+networks:
+  gist-network:
+    driver: bridge
